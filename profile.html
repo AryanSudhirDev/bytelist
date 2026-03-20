@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ByteList - Profile</title>
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body data-page="profile">
+    <main>
+      <h1 id="profileName">Profile</h1>
+      <div class="card">
+        <h2>Display Name</h2>
+        <form id="displayNameForm" class="auth-row">
+          <input id="displayNameInput" placeholder="Enter your name for leaderboard" />
+          <button type="submit">Save Name</button>
+        </form>
+        <p id="displayNameStatus" class="success"></p>
+      </div>
+      <div id="profileStats" class="card"></div>
+      <div class="card">
+        <h2>Recent Orders</h2>
+        <ul id="recentOrders" class="list"></ul>
+      </div>
+      <div class="card">
+        <h2>Earned Badges</h2>
+        <ul id="badges" class="list"></ul>
+      </div>
+      <div class="card">
+        <h2>Your Order Wrapped</h2>
+        <ul id="wrapped" class="list"></ul>
+      </div>
+      <div class="card">
+        <h2>Personalized Picks</h2>
+        <label for="dietaryFilter">Filter by dietary tag</label>
+        <select id="dietaryFilter">
+          <option value="">All</option>
+          <option value="spicy">Spicy</option>
+          <option value="vegan">Vegan</option>
+          <option value="boba">Boba</option>
+          <option value="halal">Halal</option>
+        </select>
+        <ul id="personalized" class="list"></ul>
+      </div>
+    </main>
+    <script type="module" src="./assets/js/app.js"></script>
+  </body>
+</html>

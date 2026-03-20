@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ByteList - Home</title>
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body data-page="home">
+    <main>
+      <h1>ByteList Sign In</h1>
+      <p class="muted">Sign in to create orders, earn badges, and appear on leaderboards.</p>
+      <div class="card" id="keyConfigCard">
+        <form id="saveKeyForm">
+          <label for="clerkPublishableKey">Clerk Publishable Key</label>
+          <input id="clerkPublishableKey" placeholder="pk_test_..." required />
+          <button type="submit">Save Key</button>
+        </form>
+        <p class="muted">Set this once; then users can sign in/sign up below.</p>
+        <p id="authMessage" class="success"></p>
+      </div>
+      <div class="card">
+        <h2>Current Session</h2>
+        <p id="authRuntimeMessage" class="error"></p>
+        <div id="clerkUser"></div>
+      </div>
+      <div class="row">
+        <div class="card">
+          <h2>Sign In</h2>
+          <div id="clerkSignIn"></div>
+        </div>
+        <div class="card">
+          <h2>Sign Up</h2>
+          <div id="clerkSignUp"></div>
+        </div>
+      </div>
+      <div class="card" id="postAuthLinks" style="display: none;">
+        <h2>You're signed in</h2>
+        <p class="muted">Continue to the app:</p>
+        <div class="auth-row">
+          <a href="./restaurants.html">Browse restaurants</a>
+          <a href="./add-order.html">Add an order</a>
+          <a href="./leaderboard.html">View leaderboard</a>
+          <a href="./profile.html">Edit profile name</a>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="./assets/js/app.js"></script>
+  </body>
+</html>

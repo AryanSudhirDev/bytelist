@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ByteList - Restaurants</title>
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body data-page="restaurants">
+    <main>
+      <h1>Restaurants</h1>
+      <div class="card">
+        <div class="row">
+          <div>
+            <label for="radiusFilter">Radius from Mission San Jose HS</label>
+            <select id="radiusFilter">
+              <option value="2">2 miles</option>
+              <option value="5">5 miles</option>
+              <option value="10">10 miles</option>
+              <option value="15" selected>15 miles</option>
+            </select>
+          </div>
+          <div>
+            <label for="restaurantSearch">Search restaurants</label>
+            <input id="restaurantSearch" placeholder="Search by name, cuisine, category..." />
+          </div>
+        </div>
+        <p class="muted" id="datasetMeta"></p>
+      </div>
+      <div class="card">
+        <p class="muted">Menu options are inferred from scraped cuisine tags and available menu metadata.</p>
+      </div>
+      <div class="card">
+        <p id="resultsCount" class="muted"></p>
+        <ul id="restaurantsList" class="list"></ul>
+      </div>
+    </main>
+    <script type="module" src="./assets/js/app.js"></script>
+  </body>
+</html>

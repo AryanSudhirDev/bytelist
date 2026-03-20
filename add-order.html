@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ByteList - Add Order</title>
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body data-page="add-order">
+    <main>
+      <h1>Add Order</h1>
+      <form id="orderForm" class="card">
+        <div class="row">
+          <div>
+            <label for="restaurantId">Restaurant</label>
+            <select id="restaurantId" name="restaurantId"></select>
+          </div>
+          <div>
+            <label for="rating">Rating (1-10)</label>
+            <input id="rating" name="rating" type="number" min="1" max="10" step="1" required />
+          </div>
+        </div>
+        <label for="customName">Dish Name</label>
+        <input id="customName" name="customName" required />
+        <label for="customizationText">Customization</label>
+        <input id="customizationText" name="customizationText" placeholder="e.g. less ice, extra chili" />
+        <label for="tags">Tags (comma separated)</label>
+        <input id="tags" name="tags" placeholder="spicy, vegan, boba" />
+        <label for="reviewReason">Why this order is good</label>
+        <textarea id="reviewReason" name="reviewReason" required></textarea>
+        <button type="submit">Save Order</button>
+      </form>
+      <div id="formStatus"></div>
+    </main>
+    <script type="module" src="./assets/js/app.js"></script>
+  </body>
+</html>

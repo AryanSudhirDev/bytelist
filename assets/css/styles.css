@@ -1,0 +1,148 @@
+:root {
+  --bg: #f7f7f8;
+  --text: #1c1d22;
+  --card: #ffffff;
+  --muted: #636b74;
+  --line: #dfe3e8;
+  --primary: #1f6feb;
+  --danger: #b42318;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.nav a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+main {
+  max-width: 980px;
+  margin: 20px auto;
+  padding: 0 16px 32px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+input, select, textarea, button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  font: inherit;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+button {
+  cursor: pointer;
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+button.secondary {
+  background: #fff;
+  color: var(--primary);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 14px;
+}
+
+.success {
+  color: #027a48;
+  font-size: 14px;
+}
+
+.auth-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.auth-row button,
+.auth-row a {
+  width: auto;
+}
+
+@media (max-width: 700px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
