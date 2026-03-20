@@ -1,5 +1,6 @@
 export const KEYS = {
   initialized: "bytelist_initialized",
+  nearbySynced: "bytelist_nearby_synced",
   currentUserId: "bytelist_current_user_id",
   clerkPublishableKey: "bytelist_clerk_publishable_key",
   users: "bytelist_users",
@@ -76,6 +77,10 @@ export function updateUserName(userId, name) {
 
 export function getRestaurants() {
   return readList(KEYS.restaurants);
+}
+
+export function saveRestaurants(items) {
+  writeList(KEYS.restaurants, items);
 }
 
 export function getOrders() {
@@ -158,6 +163,34 @@ export async function initializeData() {
   writeList(KEYS.userStreaks, []);
   writeValue(KEYS.currentUserId, (seed.users && seed.users[0] && seed.users[0].id) || "u1");
   writeValue(KEYS.initialized, "true");
+}
+
+export async function syncNearbyRestaurants() {
+  if (readValue(KEYS.nearbySynced) === "true") return;
+  try {
+    const response = await fetch("./data/msj_nearby_places.json");
+    const payload = await response.json();
+    const places = payload.places || [];
+    if (!places.length) return;
+
+    const current = getRestaurants();
+    const byId = new Map(current.map((item) => [item.id, item]));
+    places.forEach((place) => {
+      const id = place.id || `${place.name}-${place.lat}-${place.lon}`;
+      if (byId.has(id)) return;
+      byId.set(id, {
+        id,
+        name: place.name || "Unknown",
+        category: place.category || place.cuisine || "food",
+        location: place.location || "Near Mission San Jose",
+        openedAt: place.openedAt || null
+      });
+    });
+    saveRestaurants(Array.from(byId.values()));
+    writeValue(KEYS.nearbySynced, "true");
+  } catch {
+    // Ignore sync failures and keep seed-only data.
+  }
 }
 
 export function healCorruptStorage() {

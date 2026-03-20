@@ -10,9 +10,16 @@
     <main>
       <h1 id="restaurantTitle">Restaurant</h1>
       <p id="restaurantMeta" class="muted"></p>
-      <div class="card">
-        <h2>Ranked Dishes</h2>
+      <div class="card top-dishes-card">
+        <div class="top-dishes-header">
+          <span class="restaurant-name-label" id="restaurantLabel">RESTAURANT</span>
+          <span class="top-dishes-badge">TOP DISHES</span>
+        </div>
         <ul id="restaurantOrders" class="list"></ul>
+        <div class="log-order-row">
+          <input id="quickDishInput" type="text" placeholder="Log your order (dish + customizations)" />
+          <button id="quickLogBtn" type="button">Log Order</button>
+        </div>
       </div>
       <div id="actionStatus" class="success"></div>
       <h2>Recent Reviews</h2>

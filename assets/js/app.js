@@ -4,7 +4,10 @@ import {
   getCurrentUserId,
   getRestaurants,
   getUsers,
-  updateUserName
+  updateUserName,
+  syncNearbyRestaurants,
+  getOrderLikes,
+  getOrderCopies
 } from "./storage.js";
 import { initClerk, getSignedInUser, onClerkAuthChange, setClerkPublishableKey, getClerkPublishableKey, getLastClerkInitError } from "./auth.js";
 import {
@@ -33,12 +36,16 @@ function nav() {
   return `
     <header>
       <nav class="nav">
-        <a href="./index.html">Home</a>
-        <a href="./restaurants.html">Restaurants</a>
-        <a href="./add-order.html">Add Order</a>
-        <a href="./leaderboard.html">Leaderboard</a>
-        <a href="./profile.html">Profile</a>
-        <span id="authStatus" class="muted"></span>
+        <div class="nav-left">
+          <a href="./index.html">Home</a>
+          <a href="./restaurants.html">Restaurants</a>
+          <a href="./add-order.html">Add Order</a>
+          <a href="./leaderboard.html">Leaderboard</a>
+          <a href="./profile.html">Profile</a>
+        </div>
+        <div class="nav-right">
+          <span id="authStatus" class="muted"></span>
+        </div>
       </nav>
     </header>
   `;
@@ -57,6 +64,32 @@ function renderOrderList(target, orders, restaurants) {
       `;
     })
     .join("");
+}
+
+function formatShortDate(isoString) {
+  if (!isoString) return "N/A";
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return "N/A";
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function ratingStars(value) {
+  const rounded = Math.max(0, Math.min(5, Math.round(value / 2)));
+  return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+}
+
+function scoreTone(rank) {
+  if (rank === 1) return "score-top";
+  if (rank === 2) return "score-mid";
+  return "score-low";
+}
+
+function spiceLabelFromDish(name, tags = []) {
+  const low = String(name || "").toLowerCase();
+  const t = tags.map((item) => String(item).toLowerCase());
+  if (t.includes("spicy") || low.includes("spicy") || low.includes("hot")) return "Spice: Medium";
+  if (low.includes("mild")) return "Spice: Mild";
+  return "Spice: None";
 }
 
 function escapeHtml(value) {
@@ -129,7 +162,7 @@ async function renderRestaurantsPage() {
         const website = r.website ? `<a href="${escapeHtml(r.website)}" target="_blank" rel="noopener noreferrer">Website</a>` : "";
         const menuUrl = r.menuUrl ? `<a href="${escapeHtml(r.menuUrl)}" target="_blank" rel="noopener noreferrer">Menu</a>` : "";
         return `<li>
-          <div><strong>${escapeHtml(r.name)}</strong> <span class="pill">${escapeHtml(r.category)}</span> <span class="pill">${escapeHtml(r.cuisine || "food")}</span></div>
+          <div><strong><a href="./restaurant.html?id=${encodeURIComponent(r.id)}">${escapeHtml(r.name)}</a></strong> <span class="pill">${escapeHtml(r.category)}</span> <span class="pill">${escapeHtml(r.cuisine || "food")}</span></div>
           <div class="muted">${escapeHtml(r.distanceMiles)} mi - ${escapeHtml(r.location || "Near Mission San Jose")}</div>
           <div style="margin-top:6px;">${menuText}</div>
           <div class="muted" style="margin-top:6px;">${website}${website && menuUrl ? " | " : ""}${menuUrl}</div>
@@ -153,20 +186,66 @@ function renderRestaurantPage() {
   if (!restaurant) return;
   byId("restaurantTitle").textContent = restaurant.name;
   byId("restaurantMeta").textContent = `${restaurant.category} - ${restaurant.location}`;
+  byId("restaurantLabel").textContent = String(restaurant.name || "Restaurant").toUpperCase();
   const ranked = getTopByRestaurant(restaurant.id, 1);
-  renderOrderList(byId("restaurantOrders"), ranked, restaurants);
+  const allForRestaurant = getVisibleOrders().filter((item) => item.restaurantId === restaurant.id);
+  const rankedRows = ranked
+    .map((dish, idx) => {
+      const dishOrders = allForRestaurant.filter((o) => o.customName.toLowerCase() === dish.dishName.toLowerCase());
+      const latest = [...dishOrders].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+      const tags = dishOrders.flatMap((o) => o.tags || []);
+      const quote = latest?.reviewReason ? latest.reviewReason.slice(0, 95) : "No review quote yet.";
+      const isDim = idx + 1 >= 3 ? "is-dim" : "";
+      const trending = dish.count >= 3 ? "Trending" : "Orders";
+      const newTag = latest && Date.now() - new Date(latest.createdAt).getTime() <= 14 * 24 * 60 * 60 * 1000;
+      const scoreClass = scoreTone(idx + 1);
+      return `
+        <li class="dish-row">
+          <div class="dish-left">
+            <div class="dish-main-line">
+              <span class="rank-number ${isDim}">#${idx + 1}</span>
+              <span class="dish-name ${isDim}">${escapeHtml(dish.dishName)}</span>
+            </div>
+            <div class="review-quote">"${escapeHtml(quote)}"</div>
+            <div class="meta-line">
+              last ordered ${formatShortDate(latest?.createdAt)} · ${dish.count} reviews · <span class="verified">Verified</span>
+            </div>
+            <div class="tag-row">
+              <span class="tag-pill tag-spice">${escapeHtml(spiceLabelFromDish(dish.dishName, tags))}</span>
+              <span class="tag-pill tag-price">Price: $$</span>
+              <span class="tag-pill tag-trending">${escapeHtml(trending)}</span>
+              ${newTag ? '<span class="tag-pill tag-new">New</span>' : ""}
+            </div>
+          </div>
+          <div class="dish-right">
+            <div class="stars-line">${ratingStars(dish.avgRating)}</div>
+            <div class="score-number ${scoreClass}">${dish.avgRating.toFixed(1)}</div>
+            <div class="review-count">${dish.count} reviews</div>
+          </div>
+        </li>
+      `;
+    })
+    .join("");
+  byId("restaurantOrders").innerHTML = rankedRows || '<li class="dish-row"><div class="dish-left"><div class="dish-name">No ranked dishes yet.</div></div></li>';
 
-  const orders = getVisibleOrders().filter((item) => item.restaurantId === restaurant.id);
+  const currentUserId = getCurrentUserId();
+  const likes = getOrderLikes();
+  const copies = getOrderCopies();
+  const orders = allForRestaurant;
   byId("feed").innerHTML = orders
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .map((order) => {
+      const likeCount = likes.filter((entry) => entry.orderId === order.id).length;
+      const copyCount = copies.filter((entry) => entry.orderId === order.id).length;
+      const likedByMe = likes.some((entry) => entry.orderId === order.id && entry.userId === currentUserId);
       return `
         <div class="card">
           <strong>${order.customName}</strong> <span class="pill">${order.rating}/10</span>
           <p>${order.reviewReason}</p>
           <div class="muted">${order.customizationText || "No customization"}</div>
+          <div class="muted">Likes: ${likeCount} | Copies: ${copyCount}</div>
           <div style="margin-top:8px;display:flex;gap:8px;">
-            <button class="secondary js-like" data-id="${order.id}">Like</button>
+            <button class="secondary js-like" data-id="${order.id}">${likedByMe ? "Unlike" : "Like"}</button>
             <button class="secondary js-copy" data-id="${order.id}">Copy</button>
             <button class="secondary js-flag" data-id="${order.id}">Flag</button>
           </div>
@@ -175,7 +254,10 @@ function renderRestaurantPage() {
     })
     .join("");
 
-  byId("feed")?.addEventListener("click", (event) => {
+  const feed = byId("feed");
+  if (!feed || feed.dataset.bound === "true") return;
+  feed.dataset.bound = "true";
+  feed.addEventListener("click", (event) => {
     if (!ensureSignedIn()) return;
     const target = event.target;
     if (!(target instanceof HTMLButtonElement)) return;
@@ -192,13 +274,41 @@ function renderRestaurantPage() {
     byId("actionStatus").textContent = awarded.length
       ? `Action saved. New badges: ${awardNames.join(", ")}`
       : "Action saved.";
+    const updatedLikes = getOrderLikes();
+    const updatedCopies = getOrderCopies();
+    const likesForOrder = updatedLikes.filter((entry) => entry.orderId === id).length;
+    const copiesForOrder = updatedCopies.filter((entry) => entry.orderId === id).length;
+    const card = target.closest(".card");
+    if (card) {
+      const statsEl = card.querySelector(".muted:nth-of-type(2)");
+      if (statsEl) statsEl.textContent = `Likes: ${likesForOrder} | Copies: ${copiesForOrder}`;
+      const likeBtn = card.querySelector(".js-like");
+      if (likeBtn && likeBtn instanceof HTMLButtonElement) {
+        const isLiked = updatedLikes.some((entry) => entry.orderId === id && entry.userId === userId);
+        likeBtn.textContent = isLiked ? "Unlike" : "Like";
+      }
+    }
   });
+
+  const quickDishInput = byId("quickDishInput");
+  const quickLogBtn = byId("quickLogBtn");
+  if (quickLogBtn && quickDishInput && quickLogBtn.dataset.bound !== "true") {
+    quickLogBtn.dataset.bound = "true";
+    quickLogBtn.addEventListener("click", () => {
+      const dish = encodeURIComponent(String(quickDishInput.value || "").trim());
+      window.location.href = `./add-order.html?restaurantId=${encodeURIComponent(restaurant.id)}${dish ? `&dish=${dish}` : ""}`;
+    });
+  }
 }
 
 function renderAddOrderPage() {
   const restaurants = getRestaurants();
   const select = byId("restaurantId");
   select.innerHTML = restaurants.map((r) => `<option value="${r.id}">${r.name}</option>`).join("");
+  const defaultRestaurantId = params().get("restaurantId");
+  const defaultDish = params().get("dish");
+  if (defaultRestaurantId) select.value = defaultRestaurantId;
+  if (defaultDish) byId("customName").value = defaultDish;
   byId("orderForm")?.addEventListener("submit", (event) => {
     if (!ensureSignedIn()) return;
     event.preventDefault();
@@ -359,31 +469,29 @@ function renderAuthPage() {
   }
 
   const signInNode = byId("clerkSignIn");
-  const signUpNode = byId("clerkSignUp");
   const userNode = byId("clerkUser");
   const runtime = byId("authRuntimeMessage");
   if (runtime) runtime.textContent = "";
-  if (!signInNode || !signUpNode || !userNode) return;
+  if (!signInNode || !userNode) return;
 
-  if (typeof window.Clerk.mountSignIn !== "function" || typeof window.Clerk.mountSignUp !== "function") {
+  if (typeof window.Clerk.mountSignIn !== "function") {
     if (runtime) runtime.textContent = "Clerk widgets failed to load. Check allowed origins in Clerk dashboard for localhost.";
     return;
   }
 
   if (user) {
     signInNode.innerHTML = "";
-    signUpNode.innerHTML = "";
     window.Clerk.mountUserButton(userNode);
   } else {
     userNode.innerHTML = "";
     window.Clerk.mountSignIn(signInNode);
-    window.Clerk.mountSignUp(signUpNode);
   }
 }
 
 async function boot() {
   document.body.insertAdjacentHTML("afterbegin", nav());
   await initializeData();
+  await syncNearbyRestaurants();
   healCorruptStorage();
   await initClerk().catch(() => null);
   onClerkAuthChange(() => {
