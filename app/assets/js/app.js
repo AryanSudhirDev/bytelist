@@ -49,7 +49,8 @@ function nav() {
           ${a("profile", "./profile.html", "Profile")}
         </div>
         <div class="nav-right">
-          <span id="authStatus" class="muted"></span>
+          <div id="navUserButton" class="nav-user-button"></div>
+          <button id="navLogout" class="secondary nav-logout" type="button" style="display:none;">Log out</button>
         </div>
       </nav>
     </header>
@@ -484,16 +485,23 @@ function renderProfilePage() {
 }
 
 function renderAuthStatus() {
-  const el = byId("authStatus");
-  if (!el) return;
+  const userButtonNode = byId("navUserButton");
+  const logoutBtn = byId("navLogout");
+  if (!userButtonNode || !logoutBtn) return;
   const user = getSignedInUser();
-  if (user) {
-    const email = user.primaryEmailAddress?.emailAddress || user.id;
-    el.textContent = `Signed in: ${email}`;
-  } else if (getClerkPublishableKey()) {
-    el.textContent = "Not signed in";
+
+  if (
+    user &&
+    window.Clerk &&
+    typeof window.Clerk.mountUserButton === "function"
+  ) {
+    userButtonNode.style.display = "block";
+    logoutBtn.style.display = "inline-flex";
+    window.Clerk.mountUserButton(userButtonNode);
   } else {
-    el.textContent = "Clerk not configured";
+    userButtonNode.innerHTML = "";
+    userButtonNode.style.display = "none";
+    logoutBtn.style.display = "none";
   }
 }
 
@@ -551,6 +559,16 @@ function renderAuthPage() {
 
 async function boot() {
   document.body.insertAdjacentHTML("afterbegin", nav());
+  const navLogout = byId("navLogout");
+  if (navLogout && navLogout.dataset.bound !== "true") {
+    navLogout.dataset.bound = "true";
+    navLogout.addEventListener("click", async () => {
+      if (window.Clerk && typeof window.Clerk.signOut === "function") {
+        await window.Clerk.signOut().catch(() => null);
+      }
+      window.location.href = "./index.html";
+    });
+  }
   await initializeData();
   await syncNearbyRestaurants();
   healCorruptStorage();

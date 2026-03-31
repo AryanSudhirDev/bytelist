@@ -70,6 +70,21 @@ header {
   gap: 10px;
 }
 
+.nav-user-button {
+  display: none;
+}
+
+.nav-right button {
+  width: auto;
+}
+
+.nav-logout {
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+}
+
 /* Brand logo */
 .nav-brand {
   display: flex;
