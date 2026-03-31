@@ -1,10 +1,7 @@
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import {
-  KEYS,
   ARRAY_KEYS,
-  readValue,
-  writeValue,
   writeList,
   runWithoutStorageSync,
   setStorageSyncHandler
@@ -20,6 +17,7 @@ const firebaseConfig = {
 };
 
 const DOC_REF_PATH = ["appState", "global"];
+const SHARED_ARRAY_KEYS = [...ARRAY_KEYS];
 let db = null;
 let syncReady = false;
 
@@ -32,17 +30,12 @@ function getDb() {
 
 function buildLocalSnapshot() {
   const data = {};
-  const allKeys = Object.values(KEYS);
-  allKeys.forEach((key) => {
-    if (ARRAY_KEYS.includes(key)) {
-      try {
-        data[key] = JSON.parse(localStorage.getItem(key) || "[]");
-      } catch {
-        data[key] = [];
-      }
-      return;
+  SHARED_ARRAY_KEYS.forEach((key) => {
+    try {
+      data[key] = JSON.parse(localStorage.getItem(key) || "[]");
+    } catch {
+      data[key] = [];
     }
-    data[key] = readValue(key, "");
   });
   return {
     version: 1,
@@ -55,12 +48,9 @@ function applySnapshotToLocal(snapshot) {
   if (!snapshot || !snapshot.data) return false;
   runWithoutStorageSync(() => {
     const incoming = snapshot.data;
-    Object.entries(incoming).forEach(([key, value]) => {
-      if (ARRAY_KEYS.includes(key)) {
-        writeList(key, Array.isArray(value) ? value : []);
-      } else {
-        writeValue(key, value == null ? "" : value);
-      }
+    SHARED_ARRAY_KEYS.forEach((key) => {
+      if (!(key in incoming)) return;
+      writeList(key, Array.isArray(incoming[key]) ? incoming[key] : []);
     });
   });
   return true;

@@ -67,7 +67,8 @@ async function loadClerkFromAnyCdn(publishableKey) {
 }
 
 export function getClerkPublishableKey() {
-  return readValue(KEYS.clerkPublishableKey, DEFAULT_CLERK_PUBLISHABLE_KEY);
+  const saved = String(readValue(KEYS.clerkPublishableKey, DEFAULT_CLERK_PUBLISHABLE_KEY) || "").trim();
+  return saved || DEFAULT_CLERK_PUBLISHABLE_KEY;
 }
 
 export function setClerkPublishableKey(value) {
