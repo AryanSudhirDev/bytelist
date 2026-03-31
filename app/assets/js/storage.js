@@ -15,6 +15,23 @@ export const KEYS = {
   flags: "bytelist_flags"
 };
 
+export const ARRAY_KEYS = [
+  KEYS.users,
+  KEYS.restaurants,
+  KEYS.orders,
+  KEYS.orderLikes,
+  KEYS.orderCopies,
+  KEYS.badges,
+  KEYS.userBadges,
+  KEYS.userStreaks,
+  KEYS.surveyResponses,
+  KEYS.flags
+];
+
+let storageSyncHandler = null;
+let syncTimer = null;
+let suppressStorageSync = false;
+
 function safeParse(value, fallback) {
   if (!value) return fallback;
   try {
@@ -30,6 +47,7 @@ export function readList(key) {
 
 export function writeList(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+  queueStorageSync();
 }
 
 export function readValue(key, fallback = null) {
@@ -39,6 +57,28 @@ export function readValue(key, fallback = null) {
 
 export function writeValue(key, value) {
   localStorage.setItem(key, String(value));
+  queueStorageSync();
+}
+
+function queueStorageSync() {
+  if (suppressStorageSync || typeof storageSyncHandler !== "function") return;
+  if (syncTimer) window.clearTimeout(syncTimer);
+  syncTimer = window.setTimeout(() => {
+    storageSyncHandler().catch(() => null);
+  }, 500);
+}
+
+export function setStorageSyncHandler(handler) {
+  storageSyncHandler = handler;
+}
+
+export function runWithoutStorageSync(fn) {
+  suppressStorageSync = true;
+  try {
+    return fn();
+  } finally {
+    suppressStorageSync = false;
+  }
 }
 
 export function getCurrentUserId() {
@@ -193,19 +233,7 @@ export async function syncNearbyRestaurants() {
 }
 
 export function healCorruptStorage() {
-  const arrayKeys = [
-    KEYS.users,
-    KEYS.restaurants,
-    KEYS.orders,
-    KEYS.orderLikes,
-    KEYS.orderCopies,
-    KEYS.badges,
-    KEYS.userBadges,
-    KEYS.userStreaks,
-    KEYS.surveyResponses,
-    KEYS.flags
-  ];
-  arrayKeys.forEach((key) => {
+  ARRAY_KEYS.forEach((key) => {
     const data = safeParse(localStorage.getItem(key), null);
     if (!Array.isArray(data)) {
       writeList(key, []);

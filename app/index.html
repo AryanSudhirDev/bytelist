@@ -7,22 +7,66 @@
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
   <body data-page="home">
-    <main class="auth-main">
-      <span class="hero-eyebrow">🍜 Hyperlocal Food Discovery</span>
-      <h1>ByteList</h1>
-      <p class="hero-tagline">Discover, rate, and share the best dishes near Mission San Jose — ranked by your community.</p>
-      <p id="authRuntimeMessage" class="error"></p>
-      <div id="clerkUser"></div>
-      <div id="clerkSignIn"></div>
+    <main class="home-landing">
+      <section class="home-hero-surface">
+        <div class="home-content">
+          <div class="home-hero-copy">
+            <span class="home-eyebrow">🍜 Hyperlocal Food Discovery</span>
+            <h1 class="home-title">ByteList</h1>
+            <p class="home-subtitle">Find what to order near Mission San Jose using real student reviews, dish-level rankings, and social signals that actually help you decide.</p>
+            <div class="home-hero-actions">
+              <button id="homeSignInBtn" type="button">Get started</button>
+              <a href="./add-order.html">Add Order</a>
+              <a href="./leaderboard.html">See Leaderboard</a>
+            </div>
+            <div class="home-stats">
+              <div class="home-stat"><strong>4k+</strong><span>nearby places</span></div>
+              <div class="home-stat"><strong>live</strong><span>dish rankings</span></div>
+              <div class="home-stat"><strong>social</strong><span>likes + copies</span></div>
+            </div>
+          </div>
 
-      <div id="postAuthLinks" style="display: none; margin-top: 16px;">
-        <div class="auth-row">
-          <a href="./restaurants.html">Browse Restaurants</a>
-          <a href="./add-order.html">Add Order</a>
-          <a href="./leaderboard.html">Leaderboard</a>
-          <a href="./profile.html">Profile</a>
+          <aside id="homeAuthPanel" class="home-auth-panel" style="display:none;">
+            <h2>Sign in to continue</h2>
+            <p class="muted">Post your orders, unlock badges, and personalize your feed.</p>
+            <p id="authRuntimeMessage" class="error"></p>
+            <div id="clerkUser"></div>
+            <div id="clerkSignIn"></div>
+          </aside>
         </div>
-      </div>
+      </section>
+
+      <section class="home-value-band">
+        <div class="home-content">
+          <div class="home-grid">
+            <article class="home-feature">
+              <h2>Find What To Order Fast</h2>
+              <p>Search by restaurant or cuisine, filter by distance, and get ranked dishes instead of generic place scores.</p>
+            </article>
+            <article class="home-feature">
+              <h2>Share Exact Orders</h2>
+              <p>Post your exact dish, customizations, and why it works so others can like it or copy it directly.</p>
+            </article>
+            <article class="home-feature">
+              <h2>Build Your Food Profile</h2>
+              <p>Track your picks, earn badges, and climb influence rankings as your recommendations spread.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="postAuthLinks" class="home-post-auth" style="display:none;">
+        <div class="home-content">
+          <h2>You are signed in</h2>
+          <p class="muted">Jump right back into your ByteList workflow.</p>
+          <div class="auth-row home-quick-links">
+            <a href="./restaurants.html">Browse Restaurants</a>
+            <a href="./add-order.html">Add Order</a>
+            <a href="./leaderboard.html">Leaderboard</a>
+            <a href="./profile.html">Profile</a>
+          </div>
+        </div>
+      </section>
     </main>
     <script type="module" src="./assets/js/app.js"></script>
   </body>

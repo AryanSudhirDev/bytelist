@@ -558,28 +558,200 @@ button.secondary:hover {
   padding: 20px;
 }
 
-.hero-tagline {
-  color: var(--text-soft);
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0 0 16px;
-  max-width: 380px;
-  line-height: 1.5;
+.home-landing {
+  min-height: calc(100vh - 64px);
+  background:
+    radial-gradient(circle at 18% -8%, rgba(229, 236, 255, 0.85) 0%, rgba(229, 236, 255, 0) 38%),
+    linear-gradient(180deg, #f9fbff 0%, #f4f6fb 52%, #f6f8fc 100%);
 }
 
-.hero-eyebrow {
+.home-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.home-hero-surface {
+  padding: 56px 0 46px;
+}
+
+.home-hero-copy {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.home-title {
+  margin: 14px 0 12px;
+  font-size: clamp(56px, 10vw, 104px);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+
+.home-subtitle {
+  margin: 0 auto;
+  max-width: 820px;
+  color: var(--text-soft);
+  font-size: 23px;
+  line-height: 1.42;
+}
+
+.home-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--primary-soft);
-  color: var(--primary);
+  background: rgba(232, 237, 255, 0.9);
+  color: #2d4cdc;
   font-size: 12px;
   font-weight: 700;
   padding: 5px 13px;
   border-radius: 999px;
-  margin-bottom: 12px;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+}
+
+.home-hero-actions {
+  margin-top: 26px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.home-hero-actions a,
+.home-hero-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  background: #fff;
+  text-decoration: none;
+  width: auto;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.home-hero-actions button {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.home-hero-actions a:hover,
+.home-hero-actions button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #f8faff;
+}
+
+.home-hero-actions button:hover {
+  color: #fff;
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.home-stats {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.home-stat {
+  border: 1px solid rgba(220, 227, 240, 0.95);
+  border-radius: 14px;
+  padding: 15px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.home-stat strong {
+  display: block;
+  font-size: 24px;
+  color: var(--primary);
+  text-transform: lowercase;
+}
+
+.home-stat span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--text-soft);
+  text-transform: lowercase;
+}
+
+.home-auth-panel {
+  border: 1px solid rgba(219, 227, 242, 0.95);
+  border-radius: 18px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  text-align: center;
+  max-width: 460px;
+  margin: 26px auto 0;
+  box-shadow: var(--shadow-md);
+}
+
+.home-auth-panel h2 {
+  margin-bottom: 8px;
+}
+
+.home-auth-panel .muted {
+  margin-bottom: 8px;
+}
+
+.home-auth-panel #clerkSignIn {
+  margin-top: 10px;
+}
+
+.home-value-band {
+  padding: 6px 0 54px;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+
+.home-feature {
+  border: 1px solid rgba(220, 228, 241, 0.95);
+  border-radius: 18px;
+  background: #fff;
+  padding: 24px;
+  min-height: 196px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+}
+
+.home-feature h2 {
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+.home-feature p {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.home-post-auth {
+  padding: 14px 0 30px;
+  text-align: center;
+}
+
+.home-post-auth h2 {
+  margin-bottom: 8px;
+}
+
+.home-quick-links {
+  justify-content: center;
+  margin-top: 12px;
 }
 
 /* ─── LEADERBOARD ────────────────────────────────────────────── */
@@ -936,6 +1108,34 @@ button.secondary:hover {
 
   .row-3 {
     grid-template-columns: 1fr;
+  }
+
+  .home-hero-surface {
+    padding: 28px 0 34px;
+  }
+
+  .home-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .home-value-band {
+    padding: 14px 0 28px;
+  }
+
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-title {
+    font-size: clamp(44px, 12vw, 64px);
+  }
+
+  .home-subtitle {
+    font-size: 20px;
+  }
+
+  .home-feature {
+    min-height: 0;
   }
 
   .stat-grid {

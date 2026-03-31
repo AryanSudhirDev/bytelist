@@ -23,6 +23,7 @@ import { searchRestaurants, globalSearch } from "./search.js";
 import { evaluateBadgesForUser, getUserBadgeDetails, getLeaderboard, resolveBadgeNames } from "./gamification.js";
 import { getPersonalizedRankings, filterByDietaryTag } from "./personalization.js";
 import { flagOrder, sanitizeText } from "./moderation.js";
+import { initCloudSync } from "./backend.js";
 
 function byId(id) {
   return document.getElementById(id);
@@ -133,8 +134,24 @@ function renderHome() {
   renderAuthPage();
   const signedIn = !!getSignedInUser();
   const linksCard = byId("postAuthLinks");
+  const authPanel = byId("homeAuthPanel");
+  const signInBtn = byId("homeSignInBtn");
   if (linksCard) {
     linksCard.style.display = signedIn ? "block" : "none";
+  }
+  if (authPanel) {
+    authPanel.style.display = "none";
+  }
+  if (signInBtn) {
+    signInBtn.style.display = signedIn ? "none" : "inline-flex";
+    if (signInBtn.dataset.bound !== "true") {
+      signInBtn.dataset.bound = "true";
+      signInBtn.addEventListener("click", () => {
+        if (authPanel) authPanel.style.display = "block";
+        signInBtn.style.display = "none";
+        authPanel?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    }
   }
 }
 
@@ -597,6 +614,7 @@ async function boot() {
     });
   }
   await initializeData();
+  await initCloudSync();
   await syncNearbyRestaurants();
   healCorruptStorage();
   await initClerk().catch(() => null);
