@@ -20,7 +20,7 @@ import {
   copyOrder
 } from "./orders.js";
 import { searchRestaurants, globalSearch } from "./search.js";
-import { evaluateBadgesForUser, getUserBadgeDetails, getLeaderboard, resolveBadgeNames } from "./gamification.js";
+import { evaluateBadgesForUser, getUserBadgeDetails, getLeaderboard, resolveBadgeNames, BADGE_DEFS } from "./gamification.js";
 import { getPersonalizedRankings, filterByDietaryTag } from "./personalization.js";
 import { flagOrder, sanitizeText } from "./moderation.js";
 
@@ -342,12 +342,19 @@ function renderAddOrderPage() {
 function renderLeaderboardPage() {
   if (!ensureSignedIn()) return;
   const rows = getLeaderboard();
+  const medals = ["🥇", "🥈", "🥉"];
   byId("leaderboardList").innerHTML = rows
     .map(
-      (row) => `
-      <li>
-        <strong>${row.name}</strong>
-        <div class="muted">orders: ${row.contributions}, likes: ${row.likesReceived}, copies: ${row.copiesReceived}, score: ${row.influenceScore}</div>
+      (row, idx) => `
+      <li class="leaderboard-row">
+        <div class="leader-left">
+          <span class="leader-rank">${medals[idx] || `#${idx + 1}`}</span>
+          <div>
+            <strong>${row.name}</strong>
+            <div class="muted">orders: ${row.contributions}, likes: ${row.likesReceived}, copies: ${row.copiesReceived}</div>
+          </div>
+        </div>
+        <div class="leader-score">${row.influenceScore}</div>
       </li>`
     )
     .join("");
@@ -370,8 +377,31 @@ function renderProfilePage() {
     .join("");
 
   const badges = getUserBadgeDetails(userId);
+  const earnedIds = new Set(badges.map((item) => item.badge.id));
+  byId("badgesSummary").textContent = `Unlocked ${badges.length} of ${BADGE_DEFS.length} awards`;
   byId("badges").innerHTML = badges
-    .map((item) => `<li><strong>${item.badge.name}</strong> <span class="muted">(${item.badge.group})</span></li>`)
+    .map((item) => `
+      <div class="badge-card earned">
+        <div class="badge-icon">${item.badge.icon || "🏅"}</div>
+        <div>
+          <div class="badge-title">${item.badge.name}</div>
+          <div class="badge-meta">${item.badge.group}</div>
+          <div class="badge-desc">${item.badge.description || ""}</div>
+        </div>
+      </div>
+    `)
+    .join("") || '<div class="badge-card locked"><div class="badge-icon">🔒</div><div><div class="badge-title">No badges yet</div><div class="badge-desc">Post your first order to unlock your first award.</div></div></div>';
+  byId("allBadges").innerHTML = BADGE_DEFS
+    .map((badge) => `
+      <div class="badge-card ${earnedIds.has(badge.id) ? "earned" : "locked"}">
+        <div class="badge-icon">${badge.icon || "🏅"}</div>
+        <div>
+          <div class="badge-title">${badge.name}</div>
+          <div class="badge-meta">${badge.group}</div>
+          <div class="badge-desc">${badge.description || ""}</div>
+        </div>
+      </div>
+    `)
     .join("");
 
   const allOrders = getVisibleOrders().filter((item) => item.userId === userId);
@@ -414,7 +444,6 @@ function renderProfilePage() {
       try {
         await clerkUser.update({ firstName: nextName });
       } catch {
-        // Keep local leaderboard name update even if Clerk profile update fails.
       }
     }
     if (nameStatus) nameStatus.textContent = ok ? "Display name updated." : "Could not update name.";

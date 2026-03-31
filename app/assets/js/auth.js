@@ -27,7 +27,6 @@ function loadScript(src, publishableKey) {
     }
 
     if (publishableKey) {
-      // Some Clerk browser bundles read one of these globals during script execution.
       window.CLERK_PUBLISHABLE_KEY = publishableKey;
       window.__clerk_publishable_key = publishableKey;
       window.__clerk_frontend_api = publishableKey;

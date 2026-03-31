@@ -252,6 +252,96 @@ button.secondary:hover {
   text-decoration: underline;
 }
 
+.leaderboard-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.leader-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.leader-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: #f4f6ff;
+  border: 1px solid var(--line-strong);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.leader-score {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.badge-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  background: #fff;
+}
+
+.badge-card.earned {
+  background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+  border-color: #d4ddff;
+}
+
+.badge-card.locked {
+  opacity: 0.72;
+  filter: grayscale(0.25);
+}
+
+.badge-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #f6f8ff;
+  border: 1px solid #dce3ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.badge-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.badge-meta {
+  margin-top: 1px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+}
+
+.badge-desc {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
 #clerkSignIn {
   width: 100%;
   max-width: 430px;
@@ -268,7 +358,6 @@ button.secondary:hover {
   gap: 12px;
 }
 
-/* Top dishes card */
 .top-dishes-card {
   border: 1.5px solid #e6d3b3;
 }
@@ -475,13 +564,9 @@ button.secondary:hover {
   .row {
     grid-template-columns: 1fr;
   }
-
-  .auth-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-panel {
-    min-height: unset;
+  
+  .leader-score {
+    font-size: 20px;
   }
 
   .dish-row {

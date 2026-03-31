@@ -189,7 +189,6 @@ export async function syncNearbyRestaurants() {
     saveRestaurants(Array.from(byId.values()));
     writeValue(KEYS.nearbySynced, "true");
   } catch {
-    // Ignore sync failures and keep seed-only data.
   }
 }
 
