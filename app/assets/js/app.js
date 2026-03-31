@@ -487,21 +487,48 @@ function renderProfilePage() {
 function renderAuthStatus() {
   const userButtonNode = byId("navUserButton");
   const logoutBtn = byId("navLogout");
-  if (!userButtonNode || !logoutBtn) return;
+  const legacyStatus = byId("authStatus");
   const user = getSignedInUser();
+
+  const showLegacyLogout = () => {
+    if (!legacyStatus) return;
+    legacyStatus.innerHTML = '<button id="legacyNavLogout" class="secondary nav-logout" type="button">Sign out</button>';
+    const legacyLogoutBtn = byId("legacyNavLogout");
+    if (legacyLogoutBtn && legacyLogoutBtn.dataset.bound !== "true") {
+      legacyLogoutBtn.dataset.bound = "true";
+      legacyLogoutBtn.addEventListener("click", async () => {
+        if (window.Clerk && typeof window.Clerk.signOut === "function") {
+          await window.Clerk.signOut().catch(() => null);
+        }
+        window.location.href = "./index.html";
+      });
+    }
+  };
+
+  const clearLegacyStatus = () => {
+    if (legacyStatus) legacyStatus.textContent = "";
+  };
 
   if (
     user &&
-    window.Clerk &&
-    typeof window.Clerk.mountUserButton === "function"
+    userButtonNode &&
+    logoutBtn &&
+    window.Clerk
   ) {
-    userButtonNode.style.display = "block";
+    if (typeof window.Clerk.mountUserButton === "function") {
+      userButtonNode.style.display = "block";
+      window.Clerk.mountUserButton(userButtonNode);
+    }
     logoutBtn.style.display = "inline-flex";
-    window.Clerk.mountUserButton(userButtonNode);
+    clearLegacyStatus();
   } else {
-    userButtonNode.innerHTML = "";
-    userButtonNode.style.display = "none";
-    logoutBtn.style.display = "none";
+    if (userButtonNode) {
+      userButtonNode.innerHTML = "";
+      userButtonNode.style.display = "none";
+    }
+    if (logoutBtn) logoutBtn.style.display = "none";
+    if (user) showLegacyLogout();
+    else clearLegacyStatus();
   }
 }
 
