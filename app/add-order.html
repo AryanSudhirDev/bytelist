@@ -8,29 +8,42 @@
   </head>
   <body data-page="add-order">
     <main>
-      <h1>Add Order</h1>
+      <div class="page-header">
+        <h1>Add Order</h1>
+        <p>Log a dish you've tried and help your community discover great food.</p>
+      </div>
       <form id="orderForm" class="card">
-        <div class="row">
-          <div>
-            <label for="restaurantId">Restaurant</label>
-            <select id="restaurantId" name="restaurantId"></select>
-          </div>
-          <div>
-            <label for="rating">Rating (1-10)</label>
-            <input id="rating" name="rating" type="number" min="1" max="10" step="1" required />
+        <div class="form-section">
+          <div class="row">
+            <div>
+              <label for="restaurantId">Restaurant</label>
+              <select id="restaurantId" name="restaurantId"></select>
+            </div>
+            <div>
+              <label for="rating">Rating (1–10)</label>
+              <input id="rating" name="rating" type="number" min="1" max="10" step="1" required placeholder="e.g. 8" />
+            </div>
           </div>
         </div>
-        <label for="customName">Dish Name</label>
-        <input id="customName" name="customName" required />
-        <label for="customizationText">Customization</label>
-        <input id="customizationText" name="customizationText" placeholder="e.g. less ice, extra chili" />
-        <label for="tags">Tags (comma separated)</label>
-        <input id="tags" name="tags" placeholder="spicy, vegan, boba" />
-        <label for="reviewReason">Why this order is good</label>
-        <textarea id="reviewReason" name="reviewReason" required></textarea>
-        <button type="submit">Save Order</button>
+        <div class="form-section">
+          <label for="customName">Dish Name</label>
+          <input id="customName" name="customName" required placeholder="e.g. Spicy Tuna Roll" />
+          <div style="height:12px;"></div>
+          <label for="customizationText">Customization Notes</label>
+          <input id="customizationText" name="customizationText" placeholder="e.g. less ice, extra chili" />
+        </div>
+        <div class="form-section">
+          <label for="tags">Tags <span class="muted" style="font-weight:400;">(comma separated)</span></label>
+          <input id="tags" name="tags" placeholder="spicy, vegan, boba, halal" />
+        </div>
+        <div>
+          <label for="reviewReason">Why is this order great?</label>
+          <textarea id="reviewReason" name="reviewReason" required placeholder="Describe the flavors, texture, what makes it special..."></textarea>
+        </div>
+        <div style="height:16px;"></div>
+        <button type="submit">🍽️ Save Order</button>
       </form>
-      <div id="formStatus"></div>
+      <div id="formStatus" style="margin-top:10px;"></div>
     </main>
     <script type="module" src="./assets/js/app.js"></script>
   </body>

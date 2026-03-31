@@ -8,8 +8,11 @@
   </head>
   <body data-page="restaurants">
     <main>
-      <h1>Restaurants</h1>
-      <div class="card">
+      <div class="page-header">
+        <h1>Restaurants</h1>
+        <p id="datasetMeta" class="muted"></p>
+      </div>
+      <div class="filter-bar">
         <div class="row">
           <div>
             <label for="radiusFilter">Radius from Mission San Jose HS</label>
@@ -25,15 +28,9 @@
             <input id="restaurantSearch" placeholder="Search by name, cuisine, category..." />
           </div>
         </div>
-        <p class="muted" id="datasetMeta"></p>
       </div>
-      <div class="card">
-        <p class="muted">Menu options are inferred from scraped cuisine tags and available menu metadata.</p>
-      </div>
-      <div class="card">
-        <p id="resultsCount" class="muted"></p>
-        <ul id="restaurantsList" class="list"></ul>
-      </div>
+      <p id="resultsCount" class="results-meta"></p>
+      <div id="restaurantsList" class="restaurant-grid"></div>
     </main>
     <script type="module" src="./assets/js/app.js"></script>
   </body>

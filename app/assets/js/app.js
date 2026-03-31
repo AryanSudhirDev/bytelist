@@ -20,7 +20,7 @@ import {
   copyOrder
 } from "./orders.js";
 import { searchRestaurants, globalSearch } from "./search.js";
-import { evaluateBadgesForUser, getUserBadgeDetails, getLeaderboard, resolveBadgeNames, BADGE_DEFS } from "./gamification.js";
+import { evaluateBadgesForUser, getUserBadgeDetails, getLeaderboard, resolveBadgeNames } from "./gamification.js";
 import { getPersonalizedRankings, filterByDietaryTag } from "./personalization.js";
 import { flagOrder, sanitizeText } from "./moderation.js";
 
@@ -33,15 +33,20 @@ function params() {
 }
 
 function nav() {
+  const page = document.body.dataset.page || "";
+  const a = (p, href, label) => `<a href="${href}" class="${p === page ? "nav-active" : ""}">${label}</a>`;
   return `
     <header>
       <nav class="nav">
         <div class="nav-left">
-          <a href="./index.html">Home</a>
-          <a href="./restaurants.html">Restaurants</a>
-          <a href="./add-order.html">Add Order</a>
-          <a href="./leaderboard.html">Leaderboard</a>
-          <a href="./profile.html">Profile</a>
+          <a href="./index.html" class="nav-brand">
+            <span class="nav-brand-icon">🍜</span>
+            <span>ByteList</span>
+          </a>
+          ${a("restaurants", "./restaurants.html", "Restaurants")}
+          ${a("add-order", "./add-order.html", "Add Order")}
+          ${a("leaderboard", "./leaderboard.html", "Leaderboard")}
+          ${a("profile", "./profile.html", "Profile")}
         </div>
         <div class="nav-right">
           <span id="authStatus" class="muted"></span>
@@ -49,6 +54,28 @@ function nav() {
       </nav>
     </header>
   `;
+}
+
+function categoryEmoji(category, cuisine) {
+  const c = `${category || ""} ${cuisine || ""}`.toLowerCase();
+  if (c.includes("coffee") || c.includes("cafe")) return "☕";
+  if (c.includes("pizza")) return "🍕";
+  if (c.includes("sushi")) return "🍣";
+  if (c.includes("ramen") || c.includes("noodle")) return "🍜";
+  if (c.includes("burger") || c.includes("fast_food")) return "🍔";
+  if (c.includes("chinese")) return "🥢";
+  if (c.includes("korean")) return "🥘";
+  if (c.includes("thai")) return "🌶️";
+  if (c.includes("indian") || c.includes("curry")) return "🫕";
+  if (c.includes("mexican") || c.includes("taco")) return "🌮";
+  if (c.includes("sandwich") || c.includes("deli")) return "🥪";
+  if (c.includes("bakery") || c.includes("bread")) return "🥐";
+  if (c.includes("dessert") || c.includes("sweet") || c.includes("ice_cream")) return "🍰";
+  if (c.includes("boba") || c.includes("bubble")) return "🧋";
+  if (c.includes("bar") || c.includes("pub")) return "🍺";
+  if (c.includes("seafood") || c.includes("fish")) return "🐟";
+  if (c.includes("chicken")) return "🍗";
+  return "🍽️";
 }
 
 function renderOrderList(target, orders, restaurants) {
@@ -138,7 +165,7 @@ async function renderRestaurantsPage() {
   } catch {
     const fallback = searchRestaurants("");
     list.innerHTML = fallback
-      .map((r) => `<li><a href="./restaurant.html?id=${r.id}">${escapeHtml(r.name)}</a> <span class="pill">${escapeHtml(r.category)}</span></li>`)
+      .map((r) => `<div class="restaurant-card"><div class="restaurant-card-header"><div class="restaurant-icon">${categoryEmoji(r.category, "")}</div><div class="restaurant-info"><a class="restaurant-name" href="./restaurant.html?id=${encodeURIComponent(r.id)}">${escapeHtml(r.name)}</a><div class="restaurant-meta">${escapeHtml(r.category)}</div></div></div></div>`)
       .join("");
     datasetMeta.textContent = "Nearby scraped dataset unavailable. Showing local seeded data only.";
     return;
@@ -157,19 +184,27 @@ async function renderRestaurantsPage() {
     const limited = filtered.slice(0, 350);
     list.innerHTML = limited
       .map((r) => {
-        const menu = Array.isArray(r.menuOptions) ? r.menuOptions.slice(0, 8) : [];
-        const menuText = menu.length ? menu.map((m) => `<span class="pill">${escapeHtml(m)}</span>`).join(" ") : `<span class="muted">No menu options found</span>`;
-        const website = r.website ? `<a href="${escapeHtml(r.website)}" target="_blank" rel="noopener noreferrer">Website</a>` : "";
-        const menuUrl = r.menuUrl ? `<a href="${escapeHtml(r.menuUrl)}" target="_blank" rel="noopener noreferrer">Menu</a>` : "";
-        return `<li>
-          <div><strong><a href="./restaurant.html?id=${encodeURIComponent(r.id)}">${escapeHtml(r.name)}</a></strong> <span class="pill">${escapeHtml(r.category)}</span> <span class="pill">${escapeHtml(r.cuisine || "food")}</span></div>
-          <div class="muted">${escapeHtml(r.distanceMiles)} mi - ${escapeHtml(r.location || "Near Mission San Jose")}</div>
-          <div style="margin-top:6px;">${menuText}</div>
-          <div class="muted" style="margin-top:6px;">${website}${website && menuUrl ? " | " : ""}${menuUrl}</div>
-        </li>`;
+        const menu = Array.isArray(r.menuOptions) ? r.menuOptions.slice(0, 6) : [];
+        const menuPills = menu.length ? menu.map((m) => `<span class="menu-pill">${escapeHtml(m)}</span>`).join("") : "";
+        const website = r.website ? `<a href="${escapeHtml(r.website)}" target="_blank" rel="noopener noreferrer">Website ↗</a>` : "";
+        const menuUrl = r.menuUrl ? `<a href="${escapeHtml(r.menuUrl)}" target="_blank" rel="noopener noreferrer">Menu ↗</a>` : "";
+        const hasLinks = website || menuUrl;
+        return `<div class="restaurant-card">
+          <div class="restaurant-card-header">
+            <div class="restaurant-icon">${categoryEmoji(r.category, r.cuisine)}</div>
+            <div class="restaurant-info">
+              <a class="restaurant-name" href="./restaurant.html?id=${encodeURIComponent(r.id)}">${escapeHtml(r.name)}</a>
+              <div class="restaurant-meta">${escapeHtml(r.category)}${r.cuisine ? ` · ${escapeHtml(r.cuisine)}` : ""}</div>
+              <div class="restaurant-meta">${escapeHtml(r.location || "Near Mission San Jose")}</div>
+            </div>
+            <span class="distance-badge">${escapeHtml(String(r.distanceMiles))} mi</span>
+          </div>
+          ${menuPills ? `<div class="menu-pills">${menuPills}</div>` : ""}
+          ${hasLinks ? `<div class="restaurant-links">${website}${menuUrl}</div>` : ""}
+        </div>`;
       })
       .join("");
-    resultsCount.textContent = `Showing ${limited.length} of ${filtered.length} places in ${radius}-mile radius.`;
+    resultsCount.textContent = `Showing ${limited.length} of ${filtered.length} places within ${radius} miles`;
     if (generatedAt) {
       datasetMeta.textContent = `Loaded ${places.length} scraped places near Mission San Jose High School.`;
     }
@@ -342,21 +377,26 @@ function renderAddOrderPage() {
 function renderLeaderboardPage() {
   if (!ensureSignedIn()) return;
   const rows = getLeaderboard();
-  const medals = ["🥇", "🥈", "🥉"];
+  const medal = (i) => i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : null;
   byId("leaderboardList").innerHTML = rows
-    .map(
-      (row, idx) => `
-      <li class="leaderboard-row">
-        <div class="leader-left">
-          <span class="leader-rank">${medals[idx] || `#${idx + 1}`}</span>
-          <div>
-            <strong>${row.name}</strong>
-            <div class="muted">orders: ${row.contributions}, likes: ${row.likesReceived}, copies: ${row.copiesReceived}</div>
+    .map((row, i) => {
+      const m = medal(i);
+      const rankEl = m
+        ? `<span class="rank-medal">${m}</span>`
+        : `<span class="rank-number-plain">#${i + 1}</span>`;
+      return `<li class="leaderboard-row">
+        ${rankEl}
+        <div class="leaderboard-info">
+          <strong class="leaderboard-name">${escapeHtml(row.name)}</strong>
+          <div class="leaderboard-stats">
+            <span>${row.contributions} orders</span>
+            <span>${row.likesReceived} likes</span>
+            <span>${row.copiesReceived} copies</span>
           </div>
         </div>
-        <div class="leader-score">${row.influenceScore}</div>
-      </li>`
-    )
+        <span class="influence-score">✦ ${row.influenceScore}</span>
+      </li>`;
+    })
     .join("");
 }
 
@@ -368,41 +408,32 @@ function renderProfilePage() {
   const stats = getProfileStats(userId);
   byId("profileName").textContent = user ? user.name : userId;
   byId("profileStats").innerHTML = `
-    <div class="pill">Orders: ${stats.totalOrders}</div>
-    <div class="pill">Avg rating: ${stats.averageRating}</div>
-    <div class="pill">Unique places: ${stats.uniqueRestaurants}</div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-value">${stats.totalOrders}</div>
+        <div class="stat-label">Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${stats.averageRating}</div>
+        <div class="stat-label">Avg Rating</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${stats.uniqueRestaurants}</div>
+        <div class="stat-label">Places</div>
+      </div>
+    </div>
   `;
   byId("recentOrders").innerHTML = stats.recent
     .map((order) => `<li>${order.customName} (${order.rating}/10)</li>`)
     .join("");
 
   const badges = getUserBadgeDetails(userId);
-  const earnedIds = new Set(badges.map((item) => item.badge.id));
-  byId("badgesSummary").textContent = `Unlocked ${badges.length} of ${BADGE_DEFS.length} awards`;
-  byId("badges").innerHTML = badges
-    .map((item) => `
-      <div class="badge-card earned">
-        <div class="badge-icon">${item.badge.icon || "🏅"}</div>
-        <div>
-          <div class="badge-title">${item.badge.name}</div>
-          <div class="badge-meta">${item.badge.group}</div>
-          <div class="badge-desc">${item.badge.description || ""}</div>
-        </div>
-      </div>
-    `)
-    .join("") || '<div class="badge-card locked"><div class="badge-icon">🔒</div><div><div class="badge-title">No badges yet</div><div class="badge-desc">Post your first order to unlock your first award.</div></div></div>';
-  byId("allBadges").innerHTML = BADGE_DEFS
-    .map((badge) => `
-      <div class="badge-card ${earnedIds.has(badge.id) ? "earned" : "locked"}">
-        <div class="badge-icon">${badge.icon || "🏅"}</div>
-        <div>
-          <div class="badge-title">${badge.name}</div>
-          <div class="badge-meta">${badge.group}</div>
-          <div class="badge-desc">${badge.description || ""}</div>
-        </div>
-      </div>
-    `)
-    .join("");
+  byId("badges").innerHTML = badges.length
+    ? `<div style="padding:8px 0;">${badges.map((item) => {
+        const groupClass = `group-${(item.badge.group || "").toLowerCase().replace(/\s+/g, "-")}`;
+        return `<span class="badge-chip ${groupClass}">🏅 ${escapeHtml(item.badge.name)}</span>`;
+      }).join("")}</div>`
+    : `<li class="muted">No badges yet — start adding orders!</li>`;
 
   const allOrders = getVisibleOrders().filter((item) => item.userId === userId);
   const topDish = allOrders.reduce((acc, item) => {
@@ -444,6 +475,7 @@ function renderProfilePage() {
       try {
         await clerkUser.update({ firstName: nextName });
       } catch {
+        // Keep local leaderboard name update even if Clerk profile update fails.
       }
     }
     if (nameStatus) nameStatus.textContent = ok ? "Display name updated." : "Could not update name.";

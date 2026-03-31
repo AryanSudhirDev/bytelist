@@ -8,12 +8,14 @@
   </head>
   <body data-page="profile">
     <main>
-      <h1 id="profileName">Profile</h1>
+      <div class="page-header">
+        <h1 id="profileName">Profile</h1>
+      </div>
       <div class="card">
         <h2>Display Name</h2>
         <form id="displayNameForm" class="auth-row">
-          <input id="displayNameInput" placeholder="Enter your name for leaderboard" />
-          <button type="submit">Save Name</button>
+          <input id="displayNameInput" placeholder="Enter your name for leaderboard" style="flex:1;width:auto;" />
+          <button type="submit" style="width:auto;">Save</button>
         </form>
         <p id="displayNameStatus" class="success"></p>
       </div>
